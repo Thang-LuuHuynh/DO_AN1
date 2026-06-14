@@ -1,0 +1,22 @@
+[0.417s] Invoking command in '/home/thang/NCKH/BSMC--WMR-main/ros2_ws/build/amr_control': PYTHONPATH=/home/thang/NCKH/BSMC--WMR-main/ros2_ws/build/amr_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/thang/NCKH/BSMC--WMR-main/ros2_ws/install/amr_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/thang/NCKH/BSMC--WMR-main/ros2_ws/build/amr_control/build --no-deps symlink_data
+[0.590s] running develop
+[0.691s] running egg_info
+[0.691s] writing amr_control.egg-info/PKG-INFO
+[0.691s] writing dependency_links to amr_control.egg-info/dependency_links.txt
+[0.691s] writing entry points to amr_control.egg-info/entry_points.txt
+[0.692s] writing requirements to amr_control.egg-info/requires.txt
+[0.692s] writing top-level names to amr_control.egg-info/top_level.txt
+[0.694s] reading manifest file 'amr_control.egg-info/SOURCES.txt'
+[0.694s] writing manifest file 'amr_control.egg-info/SOURCES.txt'
+[0.695s] running build_ext
+[0.695s] Creating /home/thang/NCKH/BSMC--WMR-main/ros2_ws/install/amr_control/lib/python3.10/site-packages/amr-control.egg-link (link to .)
+[0.696s] Installing bsmc_circle script to /home/thang/NCKH/BSMC--WMR-main/ros2_ws/install/amr_control/lib/amr_control
+[0.696s] Installing bsmc_controller script to /home/thang/NCKH/BSMC--WMR-main/ros2_ws/install/amr_control/lib/amr_control
+[0.697s] Installing bsmc_eight script to /home/thang/NCKH/BSMC--WMR-main/ros2_ws/install/amr_control/lib/amr_control
+[0.697s] Installing camera_node script to /home/thang/NCKH/BSMC--WMR-main/ros2_ws/install/amr_control/lib/amr_control
+[0.697s] Installing robot_serial_bridge script to /home/thang/NCKH/BSMC--WMR-main/ros2_ws/install/amr_control/lib/amr_control
+[0.697s] Installing state_bridge script to /home/thang/NCKH/BSMC--WMR-main/ros2_ws/install/amr_control/lib/amr_control
+[0.697s] 
+[0.697s] Installed /home/thang/NCKH/BSMC--WMR-main/ros2_ws/build/amr_control
+[0.697s] running symlink_data
+[0.723s] Invoked command in '/home/thang/NCKH/BSMC--WMR-main/ros2_ws/build/amr_control' returned '0': PYTHONPATH=/home/thang/NCKH/BSMC--WMR-main/ros2_ws/build/amr_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/thang/NCKH/BSMC--WMR-main/ros2_ws/install/amr_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/thang/NCKH/BSMC--WMR-main/ros2_ws/build/amr_control/build --no-deps symlink_data
