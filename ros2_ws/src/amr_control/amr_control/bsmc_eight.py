@@ -13,7 +13,7 @@ class BSMCEight(Node):
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.err_pub = self.create_publisher(Point, '/tracking_error', 10)
         self.odom_sub = self.create_subscription(
-            Odometry, '/odometry/filtered', self.odom_callback, 10
+            Odometry, '/odom_raw', self.odom_callback, 10
         )
 
         # ── Robot state ────────────────────────────────────
@@ -46,8 +46,8 @@ class BSMCEight(Node):
 
         # ── Backstepping gains (Kanayama-stable form) ──────
         self.k1 = 0.3
-        self.k2 = 0.5    # GIẢM MẠNH từ 3.0 → tránh bánh đảo chiều
-        self.k3 = 0.5    # GIẢM MẠNH từ 1.5
+        self.k2 = 0.5
+        self.k3 = 0.5
 
         # ── Sliding Mode ────────────────────────────────────
         self.Ks1 = 0.003
@@ -132,16 +132,22 @@ class BSMCEight(Node):
     # ── Reference trajectory ────────────────────────────────
     def generate_desired_trajectory(self, t):
         A, B, w = self.A, self.B, self.W
-        wt  = w * t
+        T_ramp = 2.0
+        if t < T_ramp:
+            wt = w * (t ** 2) / (2.0 * T_ramp)
+            w_phase = w * t / T_ramp
+        else:
+            wt = w * (t - T_ramp / 2.0)
+            w_phase = w
         wt2 = 2.0 * wt
 
         # Local frame (unrotated)
         x_loc   =  A * math.sin(wt)
         y_loc   =  B * math.sin(wt2)
-        dx_loc  =  A * w * math.cos(wt)
-        dy_loc  =  2.0 * B * w * math.cos(wt2)
-        ddx_loc = -A * w**2 * math.sin(wt)
-        ddy_loc = -4.0 * B * w**2 * math.sin(wt2)
+        dx_loc  =  A * w_phase * math.cos(wt)
+        dy_loc  =  2.0 * B * w_phase * math.cos(wt2)
+        ddx_loc = -A * (w_phase**2) * math.sin(wt)
+        ddy_loc = -4.0 * B * (w_phase**2) * math.sin(wt2)
 
         # Rotate by self.rot + offset by (x0, y0)
         cr = math.cos(self.rot)

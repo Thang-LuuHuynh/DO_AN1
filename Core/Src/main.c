@@ -87,8 +87,9 @@ float   rpmL = 0.0f, rpmR = 0.0f;
 float   rpmL_signed = 0.0f, rpmR_signed = 0.0f;
 int8_t  dirL = 1, dirR = 1;
 
-// Encoder RPM filter (2-sample moving average)
-float   prev_rpmL_raw = 0.0f, prev_rpmR_raw = 0.0f;
+// Encoder RPM filter (First-order LPF / Exponential Moving Average)
+float   filtered_rpmL = 0.0f, filtered_rpmR = 0.0f;
+#define LPF_RPM_ALPHA  0.30f
 
 // Motor deadzone: PWM toi thieu de motor quay tron
 #define MOTOR_PWM_MIN  120.0f
@@ -655,11 +656,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   last_countL = cntL;
   last_countR = cntR;
 
-  /* 2-sample moving average: giam nhieu encoder */
-  float raw_rpmL = (inst_rpmL + prev_rpmL_raw) * 0.5f;
-  float raw_rpmR = (inst_rpmR + prev_rpmR_raw) * 0.5f;
-  prev_rpmL_raw = inst_rpmL;
-  prev_rpmR_raw = inst_rpmR;
+  /* First-order Low-Pass Filter to reduce encoder quantization noise */
+  filtered_rpmL = LPF_RPM_ALPHA * inst_rpmL + (1.0f - LPF_RPM_ALPHA) * filtered_rpmL;
+  filtered_rpmR = LPF_RPM_ALPHA * inst_rpmR + (1.0f - LPF_RPM_ALPHA) * filtered_rpmR;
+  float raw_rpmL = filtered_rpmL;
+  float raw_rpmR = filtered_rpmR;
 
   //CALIB BÁNH TRÁI 1.22 LẦN
   rpmL = (raw_rpmL < 0 ? -raw_rpmL : raw_rpmL) * 1.22f;

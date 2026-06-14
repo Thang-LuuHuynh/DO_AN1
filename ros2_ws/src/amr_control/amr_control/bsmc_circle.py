@@ -51,14 +51,14 @@ class BSMCCircle(Node):
         self.W = 0.25          # Giảm W để robot chạy chậm hơn, dễ bám
         self.VD = self.R * self.W   # = 0.125 m/s
 
-        # Backstepping gains
+        # Backstepping gains (Kanayama-stable form)
         self.k1 = 0.8    # longitudinal: correction mạnh hơn
-        self.k2 = 0.3    # lateral: giảm để tránh w_cmd lớn
-        self.k3 = 0.5    # heading
+        self.k2 = 2.4    # lateral (nhân VD = 0.125 → effective 0.3)
+        self.k3 = 4.0    # heading (nhân VD = 0.125 → effective 0.5)
 
-        # Weak SMC — Tắt SMC tạm thời, dùng pure backstepping
-        self.Ks1 = 0.0
-        self.Ks2 = 0.0
+        # Weak SMC — Bật lại SMC với hệ số nhỏ ổn định
+        self.Ks1 = 0.002
+        self.Ks2 = 0.005
 
         self.phi1 = 0.45
         self.phi2 = 1.2
@@ -147,12 +147,21 @@ class BSMCCircle(Node):
         self.last_odom_time = now_s
 
     def generate_desired_trajectory(self, t):
-        wt = self.W * t
+        T_ramp = 2.0
+        if t < T_ramp:
+            s = self.VD * (t ** 2) / (2.0 * T_ramp)
+            v_d = self.VD * t / T_ramp
+            w_d = self.W * t / T_ramp
+        else:
+            s = self.VD * (t - T_ramp / 2.0)
+            v_d = self.VD
+            w_d = self.W
 
         # Circle in local frame
-        x_local = self.R * math.sin(wt)
-        y_local = self.R * (1.0 - math.cos(wt))
-        theta_local = wt
+        ang = s / self.R
+        theta_local = ang
+        x_local = self.R * math.sin(ang)
+        y_local = self.R * (1.0 - math.cos(ang))
 
         # Rotate trajectory by initial robot heading
         cos0 = math.cos(self.theta0)
@@ -161,9 +170,6 @@ class BSMCCircle(Node):
         x_d = self.x0 + cos0 * x_local - sin0 * y_local
         y_d = self.y0 + sin0 * x_local + cos0 * y_local
         theta_d = self.normalize_angle(self.theta0 + theta_local)
-
-        v_d = self.VD
-        w_d = self.W
 
         return x_d, y_d, theta_d, v_d, w_d
 
@@ -200,11 +206,6 @@ class BSMCCircle(Node):
         t_track = t - self.STARTUP_DELAY
 
         x_d, y_d, theta_d, v_d, w_d = self.generate_desired_trajectory(t_track)
-
-        # Ramp-up: Tăng dần v_d và w_d trong 5s đầu
-        ramp_factor = min(1.0, t_track / 5.0)
-        v_d = v_d * ramp_factor
-        w_d = w_d * ramp_factor
 
         dx = x_d - self.current_x
         dy = y_d - self.current_y
@@ -243,8 +244,7 @@ class BSMCCircle(Node):
 
         w_cmd = (
             w_d
-            + self.k2 * e_y
-            + self.k3 * math.sin(e_theta)
+            + self.VD * (self.k2 * e_y + self.k3 * math.sin(e_theta))
             + self.Ks2 * sat_s2
         )
 
